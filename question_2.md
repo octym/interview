@@ -1,4 +1,4 @@
-# Node.js - Question #1
+# Node.js - Question #2
 We will be using the code from question 1 but this time we are running the emitters inside `setImmediate()`.
 
 *Before:*
