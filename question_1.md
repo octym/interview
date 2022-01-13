@@ -1,5 +1,5 @@
-# Node.js - Question #1
-The following Javascript code:
+# Summary
+We have the following Javascript code:
 ```javascript
 const EventEmitter = require('events');
 
@@ -37,7 +37,7 @@ emitterB.on('done', () => {
 emitterA.run();
 ```
 
-Will run for about a few thousand iterations, until the call stack is full and then crash with the classical message - `RangeError: Maximum call stack size exceeded`.
+Calling `node script.js` will run the code for a short while and then crash with the following message - `RangeError: Maximum call stack size exceeded`.
 
 Here's an output sample:
 
@@ -63,7 +63,9 @@ RangeError: Maximum call stack size exceeded
 
 Notice that the second handler is never called.
 
-By modifying only lines `#22` and `#31` (marked above), how would you fix the code so it runs *forever* with the following output:
+# Questions
+ - Can explain what is going on and why this code fails?
+ - By modifying only lines `#22` and `#31` (marked above), how would you fix the code so it runs *forever* with the following output?
 
 ```
 > A.run() | A is running
