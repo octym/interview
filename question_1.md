@@ -1,10 +1,7 @@
 # Node.js - Question #1
-Given the following Javascript code:
+The following Javascript code:
 ```javascript
-import EventEmitter from 'events';
-
-const $MAX_RUNS = 2;
-let $COUNTER = 0;
+const EventEmitter = require('events');
 
 class A extends EventEmitter {
 	run() {
@@ -16,11 +13,7 @@ class A extends EventEmitter {
 class B extends EventEmitter {
 	run() {
 		console.log('> B.run()', '|', 'B is running');
-		if (++$COUNTER < $MAX_RUNS) {
-			this.emit('done');
-		} else {
-			console.log('---------', '|', 'FINISHED WITH B', $MAX_RUNS);
-		}
+		this.emit('done');
 	}
 }
 
@@ -29,7 +22,7 @@ const emitterB = new B();
 
 emitterA.on('done', () => {
 	console.log('@ A::done', '|', 'A is done', '[AH1]');
-	emitterB.run();
+	emitterB.run(); // Line #22
 });
 
 emitterA.on('done', () => {
@@ -38,45 +31,58 @@ emitterA.on('done', () => {
 
 emitterB.on('done', () => {
 	console.log('@ B::done', '|', 'B is done', '[BH1]');
-	emitterA.run();
+	emitterA.run(); // Line #31
 });
 
 emitterA.run();
 ```
 
-Which of these two outputs is the correct one, can you explain why?
+Will run for about a few thousand iterations, until the call stack is full and then crash with the classical message - `RangeError: Maximum call stack size exceeded`.
 
-## Output A
-```javascript
-> A.run() | A is running                             | LOOP_COUNTER = 0
-@ A::done | A is done running [AH1]                  | LOOP_COUNTER = 0
-@ A::done | A is done running [AH2]                  | LOOP_COUNTER = 0
+Here's an output sample:
 
-> B.run() | B is running                             | LOOP_COUNTER = 0
-@ B::done | B is done running [BH1]                  | LOOP_COUNTER = 1
+```
+> A.run() | A is running
+@ A::done | A is done [AH1]
+> B.run() | B is running
+@ B::done | B is done [BH1]
+> A.run() | A is running
+@ A::done | A is done [AH1]
+> B.run() | B is running
+@ B::done | B is done [BH1]
+> A.run() | A is running
+...
+> A.run() | A is running
+@ A::done | A is done [AH1]
+node:internal/console/constructor:290
+        if (isStackOverflowError(e))
+            ^
 
-> A.run() | A is running                             | LOOP_COUNTER = 1
-@ A::done | A is done running [AH1]                  | LOOP_COUNTER = 1
-@ A::done | A is done running [AH2]                  | LOOP_COUNTER = 1
-
-> B.run() | B is running                             | LOOP_COUNTER = 1
---------- | FINISHED WITH B                          | LOOP_COUNTER = 2
+RangeError: Maximum call stack size exceeded
 ```
 
-## Output B
-```javascript
-> A.run() | A is running                             | LOOP_COUNTER = 0
-@ A::done | A is done running [AH1]                  | LOOP_COUNTER = 0
+Notice that the second handler is never called.
 
-> B.run() | B is running                             | LOOP_COUNTER = 0
-@ B::done | B is done running [BH1]                  | LOOP_COUNTER = 1
+By modifying only lines `#22` and `#31` (marked above), how would you fix the code so it runs *forever* with the following output:
 
-> A.run() | A is running                             | LOOP_COUNTER = 1
-@ A::done | A is done running [AH1]                  | LOOP_COUNTER = 1
-
-> B.run() | B is running                             | LOOP_COUNTER = 1
---------- | FINISHED WITH B                          | LOOP_COUNTER = 2
-
-@ A::done | A is done running [AH2]                  | LOOP_COUNTER = 2
-@ A::done | A is done running [AH2]                  | LOOP_COUNTER = 2
 ```
+> A.run() | A is running
+@ A::done | A is done [AH1]
+@ A::done | A is done [AH2]
+> B.run() | B is running
+@ B::done | B is done [BH1]
+> A.run() | A is running
+@ A::done | A is done [AH1]
+@ A::done | A is done [AH2]
+...
+> B.run() | B is running
+@ B::done | B is done [BH1]
+> A.run() | A is running
+@ A::done | A is done [AH1]
+@ A::done | A is done [AH2]
+> B.run() | B is running
+@ B::done | B is done [BH1]
+...
+Infinity
+```
+*Hint: think about how Node.js schedules callbacks on the event loop!*
