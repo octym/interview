@@ -65,7 +65,7 @@ Notice that the second handler is never called.
 
 # Questions
  - Can explain what is going on and why this code fails?
- - By modifying only lines `#22` and `#31` (marked above), how would you fix the code so it runs *forever* with the following output?
+ - By modifying lines `#22` and `#31` (marked above), how would you fix the code so it runs *forever* with the following output?
 
 ```
 > A.run() | A is running
