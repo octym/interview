@@ -58,7 +58,7 @@ emitterB.on('done', () => {
 emitterA.run();
 ```
 
-Which of these two outputs is the correct one?
+Which of these two outputs is the correct one, can you explain why?
 
 ## Output A
 ```javascript
